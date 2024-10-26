@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dragon Ball NFL Fantasy Draft</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(to bottom right, #ffcc80, #ffab40);
+            color: #333;
+            padding: 20px;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 {
+            text-align: center;
+            color: #ffeb3b;
+            margin-bottom: 20px;
+        }
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            margin-top: 20px;
+            width: 100%;
+            flex-wrap: wrap; /* Allow wrapping to prevent scrolling */
+        }
+        .team {
+            border: 2px solid #ffab40;
+            border-radius: 10px;
+            background-color: #ffffff;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            width: 25%;
+            padding: 20px;
+            margin: 10px;
+            position: relative;
+        }
+        .character-box {
+            border: 2px solid #ffab40;
+            border-radius: 10px;
+            background-color: #ffffff;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            padding: 10px;
+            margin: 10px;
+            width: 100%;
+            max-height: 400px; /* Fixed height to fit all characters */
+            overflow-y: auto; /* Enable scrolling */
+        }
+        .character-item {
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ffab40;
+            border-radius: 5px;
+            background-color: #ffe0b2;
+            cursor: grab;
+            transition: background-color 0.3s;
+        }
+        .character-item:active {
+            cursor: grabbing;
+        }
+        .drafted-characters {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+        .draft-button {
+            margin: 20px auto;
+            padding: 10px 20px;
+            font-size: 18px;
+            background-color: #ffab40;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            display: block;
+            text-align: center;
+        }
+        .draft-button:hover {
+            background-color: #f57c00;
+        }
+        #log {
+            margin-top: 20px;
+            font-weight: bold;
+            color: #d32f2f;
+            text-align: center;
+        }
+        .team-header {
+            text-align: center;
+            font-size: 20px;
+            margin-bottom: 10px;
+            color: #ff5722;
+        }
+        .drop-area {
+            border: 2px dashed #ffab40;
+            padding: 10px;
+            min-height: 50px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+            text-align: center;
+        }
+        .drop-area:hover {
+            background-color: #ffe0b2;
+        }
+        .logo {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            width: 100px; /* Adjust size as needed */
+            height: auto; /* Maintain aspect ratio */
+        }
+    </style>
+</head>
+<body>
+    <h1>Dragon Ball NFL Fantasy Draft</h1>
+    <div class="container">
+        <div class="character-box" id="character-list">
+            <h2>Available Characters</h2>
+            <div id="characters"></div>
+        </div>
+        <div class="team" id="team1">
+            <h2 class="team-header">Team 1</h2>
+            <div class="drop-area" ondrop="drop(event, 0)" ondragover="allowDrop(event)">
+                Drop Characters Here
+            </div>
+            <ul class="drafted-characters" id="team1-list"></ul>
+        </div>
+        <div class="team" id="team2">
+            <h2 class="team-header">Team 2</h2>
+            <div class="drop-area" ondrop="drop(event, 1)" ondragover="allowDrop(event)">
+                Drop Characters Here
+            </div>
+            <ul class="drafted-characters" id="team2-list"></ul>
+        </div>
+        <div class="team" id="team3">
+            <h2 class="team-header">Team 3</h2>
+            <div class="drop-area" ondrop="drop(event, 2)" ondragover="allowDrop(event)">
+                Drop Characters Here
+            </div>
+            <ul class="drafted-characters" id="team3-list"></ul>
+        </div>
+    </div>
+    <button class="draft-button" id="draft-btn">Draft Character</button>
+    <div id="log"></div>
+    <img class="logo" src="https://wallpapers.com/images/hd/dragon-ball-z-logo-p2xglxul77hbozqi.jpg" alt="Dragon Ball Z Logo">
+
+    <script>
+        const characters = [
+            {name: "Yamcha"},
+            {name: "Krillin"},
+            {name: "Chiaotzu"},
+            {name: "Master Roshi"},
+            {name: "Bulma"},
+            {name: "Videl"},
+            {name: "Mr. Satan"},
+            {name: "Dende"},
+            {name: "Pan"},
+            {name: "Goten"},
+            {name: "Trunks"},
+            {name: "Chi-Chi"},
+            {name: "Yajirobe"},
+            {name: "Turtle Hermit"},
+            {name: "Kibito Kai"},
+            {name: "Kami"},
+            {name: "Mr. Popo"},
+            {name: "Guldo"},
+            {name: "Jeice"},
+            {name: "Burta"},
+            {name: "Recoome"},
+            {name: "Dodoria"},
+            {name: "Zarbon"},
+            {name: "Captain Ginyu"},
+            {name: "Dabura"},
+            {name: "Majin Buu (Good)"},
+            {name: "Majin Buu (Kid)"},
+            {name: "Super Baby Vegeta"},
+            {name: "Raditz"},
+            {name: "Nappa"},
+            {name: "Chiaotzu (Dragon Ball Z)"},
+            {name: "Future Trunks"},
+            {name: "Future Gohan"},
+            {name: "Android 16"},
+            {name: "Goku"},
+            {name: "Vegeta"},
+            {name: "Gohan"},
+            {name: "Piccolo"},
+            {name: "Frieza"},
+            {name: "Cell"},
+            {name: "Majin Vegeta"},
+            {name: "Super Saiyan Goku"},
+            {name: "Super Saiyan Vegeta"},
+            {name: "Beerus"},
+            {name: "Whis"},
+            {name: "Jiren"},
+            {name: "Goku (Ultra Instinct)"},
+            {name: "Vegeta (Super Saiyan Blue)"},
+            {name: "Broly"},
+            // Add more characters here as needed
+        ];
+
+        const teams = [[], [], []];
+        const characterListElement = document.getElementById('characters');
+        const teamLists = [
+            document.getElementById('team1-list'),
+            document.getElementById('team2-list'),
+            document.getElementById('team3-list')
+        ];
+
+        function displayCharacters() {
+            characterListElement.innerHTML = '';
+            characters.forEach((character, index) => {
+                const div = document.createElement('div');
+                div.className = 'character-item';
+                div.draggable = true;
+                div.ondragstart = (event) => drag(event, index);
+                div.textContent = character.name;
+                characterListElement.appendChild(div);
+            });
+        }
+
+        function drag(event, index) {
+            event.dataTransfer.setData('text/plain', index);
+        }
+
+        function allowDrop(event) {
+            event.preventDefault();
+        }
+
+        function drop(event, teamIndex) {
+            event.preventDefault();
+            const index = event.dataTransfer.getData('text/plain');
+            const character = characters[index];
+            if (!teams[teamIndex].includes(character)) { // Ensure no duplicates
+                teams[teamIndex].push(character);
+                displayTeamCharacters(teamIndex);
+                log(`${character.name} has been drafted to Team ${teamIndex + 1}`);
+            } else {
+                log(`${character.name} is already drafted to another team!`);
+            }
+        }
+
+        function displayTeamCharacters(teamIndex) {
+            teamLists[teamIndex].innerHTML = '';
+            teams[teamIndex].forEach((character) => {
+                const li = document.createElement('li');
+                li.textContent = character.name;
+                teamLists[teamIndex].appendChild(li);
+            });
+        }
+
+        function log(message) {
+            const logElement = document.getElementById('log');
+            logElement.textContent = message;
+        }
+
+        displayCharacters();
+    </script>
+</body>
+</html>
